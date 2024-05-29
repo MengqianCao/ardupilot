@@ -163,6 +163,10 @@ void strncpy_noterm(char *dest, const char *src, size_t n);
 // return the numeric value of an ascii hex character
 int16_t char_to_hex(char a);
 
+void int_to_char(int32_t num,char* str);
+
+char dec_to_hex(uint8_t num);
+
 /*
   Bit manipulation
  */

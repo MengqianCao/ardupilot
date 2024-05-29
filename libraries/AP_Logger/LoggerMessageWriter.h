@@ -155,6 +155,7 @@ private:
         PARMS,
         VEHICLE_MESSAGES,
         RUNNING_SUBWRITERS, // must be last thing to run as we can redo bits of these
+        RC4_INIT,
         DONE,
     };
 

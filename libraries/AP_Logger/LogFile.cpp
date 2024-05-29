@@ -1,5 +1,6 @@
 #include <stdlib.h>
 
+#include<AP_Common/AP_Encryption.h>
 #include <AP_AHRS/AP_AHRS.h>
 #include <AP_Compass/AP_Compass.h>
 #include <AP_HAL/AP_HAL.h>
@@ -297,7 +298,7 @@ bool AP_Logger_Backend::Write_Mission_Cmd(const AP_Mission &mission,
 {
     mavlink_mission_item_int_t mav_cmd = {};
     AP_Mission::mission_cmd_to_mavlink_int(cmd,mav_cmd);
-    const struct log_Cmd pkt{
+    struct log_Cmd pkt{
         LOG_PACKET_HEADER_INIT(LOG_CMD_MSG),
         time_us         : AP_HAL::micros64(),
         command_total   : mission.num_commands(),
@@ -307,11 +308,13 @@ bool AP_Logger_Backend::Write_Mission_Cmd(const AP_Mission &mission,
         param2          : mav_cmd.param2,
         param3          : mav_cmd.param3,
         param4          : mav_cmd.param4,
-        latitude        : mav_cmd.x,
-        longitude       : mav_cmd.y,
+        //latitude        : mav_cmd.x,
+        //longitude       : mav_cmd.y,
         altitude        : mav_cmd.z,
         frame           : mav_cmd.frame
     };
+    rc4_encrypt(pkt.latitude,mav_cmd.x);
+    rc4_encrypt(pkt.longitude,mav_cmd.y);
     return WriteBlock(&pkt, sizeof(pkt));
 }
 
@@ -331,7 +334,9 @@ bool AP_Logger_Backend::Write_Message(const char *message)
         time_us : AP_HAL::micros64(),
         msg  : {}
     };
-    strncpy_noterm(pkt.msg, message, sizeof(pkt.msg));
+    char tmp[64];
+    strncpy_noterm(tmp, message, sizeof(pkt.msg));
+    rc4_encrypt(pkt.msg,tmp);
     return WriteCriticalBlock(&pkt, sizeof(pkt));
 }
 

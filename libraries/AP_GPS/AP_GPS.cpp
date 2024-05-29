@@ -15,6 +15,7 @@
 #include "AP_GPS.h"
 
 #include <AP_Common/AP_Common.h>
+#include <AP_Common/AP_Encryption.h>
 #include <AP_HAL/AP_HAL.h>
 #include <AP_Math/AP_Math.h>
 #include <AP_Notify/AP_Notify.h>
@@ -2171,7 +2172,7 @@ void AP_GPS::Write_GPS(uint8_t i)
     uint32_t yaw_time_ms;
     gps_yaw_deg(i, yaw_deg, yaw_accuracy_deg, yaw_time_ms);
 
-    const struct log_GPS pkt {
+    struct log_GPS pkt {
         LOG_PACKET_HEADER_INIT(LOG_GPS_MSG),
         time_us       : time_us,
         instance      : i,
@@ -2180,15 +2181,18 @@ void AP_GPS::Write_GPS(uint8_t i)
         gps_week      : time_week(i),
         num_sats      : num_sats(i),
         hdop          : get_hdop(i),
-        latitude      : loc.lat,
-        longitude     : loc.lng,
-        altitude      : loc.alt,
+        //latitude      : loc.lat,
+        //longitude     : loc.lng,
+        //altitude      : loc.alt,
         ground_speed  : ground_speed(i),
         ground_course : ground_course(i),
         vel_z         : velocity(i).z,
         yaw           : yaw_deg,
         used          : (uint8_t)(AP::gps().primary_sensor() == i)
     };
+    rc4_encrypt(pkt.latitude, loc.lat);
+    rc4_encrypt(pkt.longitude, loc.lng);
+    rc4_encrypt(pkt.altitude, loc.alt);
     AP::logger().WriteBlock(&pkt, sizeof(pkt));
 
     /* write auxiliary accuracy information as well */

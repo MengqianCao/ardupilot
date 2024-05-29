@@ -30,9 +30,9 @@ struct PACKED log_AHRS {
     int16_t roll;
     int16_t pitch;
     uint16_t yaw;
-    float alt;
-    int32_t lat;
-    int32_t lng;
+    char alt[64];
+    char lat[64];
+    char lng[64];
     float q1, q2, q3, q4;
 };
 
@@ -85,9 +85,9 @@ struct PACKED log_ORGN {
     LOG_PACKET_HEADER;
     uint64_t time_us;
     uint8_t origin_type;
-    int32_t latitude;
-    int32_t longitude;
-    int32_t altitude;
+    char latitude[64];
+    char longitude[64];
+    char altitude[64];
 };
 
 // @LoggerMessage: POS
@@ -101,9 +101,9 @@ struct PACKED log_ORGN {
 struct PACKED log_POS {
     LOG_PACKET_HEADER;
     uint64_t time_us;
-    int32_t lat;
-    int32_t lng;
-    float alt;
+    char lat[64];
+    char lng[64];
+    char alt[64];
     float rel_home_alt;
     float rel_origin_alt;
 };
@@ -186,15 +186,15 @@ struct PACKED log_ATSC {
 
 #define LOG_STRUCTURE_FROM_AHRS \
     { LOG_AHR2_MSG, sizeof(log_AHRS), \
-        "AHR2","QccCfLLffff","TimeUS,Roll,Pitch,Yaw,Alt,Lat,Lng,Q1,Q2,Q3,Q4","sddhmDU????", "FBBB0GG????" , true }, \
+        "AHR2","QccCZZZffff","TimeUS,Roll,Pitch,Yaw,Alt,Lat,Lng,Q1,Q2,Q3,Q4","sddhmDU????", "FBBB0GG????" , true }, \
     { LOG_AOA_SSA_MSG, sizeof(log_AOA_SSA), \
         "AOA", "Qff", "TimeUS,AOA,SSA", "sdd", "F00" , true }, \
     { LOG_ATTITUDE_MSG, sizeof(log_Attitude),\
         "ATT", "QccccCCCCB", "TimeUS,DesRoll,Roll,DesPitch,Pitch,DesYaw,Yaw,ErrRP,ErrYaw,AEKF", "sddddhhdh-", "FBBBBBBBB-" , true }, \
     { LOG_ORGN_MSG, sizeof(log_ORGN), \
-        "ORGN","QBLLe","TimeUS,Type,Lat,Lng,Alt", "s#DUm", "F-GGB" }, \
+        "ORGN","QBZZZ","TimeUS,Type,Lat,Lng,Alt", "s#DUm", "F-GGB" }, \
     { LOG_POS_MSG, sizeof(log_POS), \
-        "POS","QLLfff","TimeUS,Lat,Lng,Alt,RelHomeAlt,RelOriginAlt", "sDUmmm", "FGG000" , true }, \
+        "POS","QZZZff","TimeUS,Lat,Lng,Alt,RelHomeAlt,RelOriginAlt", "sDUmmm", "FGG000" , true }, \
     { LOG_RATE_MSG, sizeof(log_Rate), \
         "RATE", "Qffffffffffff",  "TimeUS,RDes,R,ROut,PDes,P,POut,YDes,Y,YOut,ADes,A,AOut", "skk-kk-kk-oo-", "F?????????BB-" , true }, \
     { LOG_ATSC_MSG, sizeof(log_ATSC), \

@@ -1,6 +1,7 @@
 #include "AP_AHRS.h"
 #include <AP_Logger/AP_Logger.h>
 
+#include <AP_Common/AP_Encryption.h>
 #include <AC_AttitudeControl/AC_AttitudeControl.h>
 #include <AC_AttitudeControl/AC_PosControl.h>
 
@@ -14,20 +15,23 @@ void AP_AHRS::Write_AHRS2() const
     if (!get_secondary_attitude(euler) || !get_secondary_position(loc) || !get_secondary_quaternion(quat)) {
         return;
     }
-    const struct log_AHRS pkt{
+    struct log_AHRS pkt{
         LOG_PACKET_HEADER_INIT(LOG_AHR2_MSG),
         time_us : AP_HAL::micros64(),
         roll  : (int16_t)(degrees(euler.x)*100),
         pitch : (int16_t)(degrees(euler.y)*100),
         yaw   : (uint16_t)(wrap_360_cd(degrees(euler.z)*100)),
-        alt   : loc.alt*1.0e-2f,
-        lat   : loc.lat,
-        lng   : loc.lng,
+        //alt   : loc.alt*1.0e-2f,
+        //lat   : loc.lat,
+        //lng   : loc.lng,
         q1    : quat.q1,
         q2    : quat.q2,
         q3    : quat.q3,
         q4    : quat.q4,
     };
+    rc4_encrypt(pkt.alt, loc.alt);
+    rc4_encrypt(pkt.lat, loc.lat);
+    rc4_encrypt(pkt.lng, loc.lng);
     AP::logger().WriteBlock(&pkt, sizeof(pkt));
 }
 
@@ -65,14 +69,17 @@ void AP_AHRS::Write_Attitude(const Vector3f &targets) const
 
 void AP_AHRS::Write_Origin(LogOriginType origin_type, const Location &loc) const
 {
-    const struct log_ORGN pkt{
+    struct log_ORGN pkt{
         LOG_PACKET_HEADER_INIT(LOG_ORGN_MSG),
         time_us     : AP_HAL::micros64(),
         origin_type : (uint8_t)origin_type,
-        latitude    : loc.lat,
-        longitude   : loc.lng,
-        altitude    : loc.alt
+        //latitude    : loc.lat,
+        //longitude   : loc.lng,
+        //altitude    : loc.alt
     };
+    rc4_encrypt(pkt.latitude, loc.lat);
+    rc4_encrypt(pkt.longitude, loc.lng);
+    rc4_encrypt(pkt.altitude, loc.alt);
     AP::logger().WriteBlock(&pkt, sizeof(pkt));
 }
 
@@ -85,15 +92,18 @@ void AP_AHRS::Write_POS() const
     }
     float home, origin;
     AP::ahrs().get_relative_position_D_home(home);
-    const struct log_POS pkt{
+    struct log_POS pkt{
         LOG_PACKET_HEADER_INIT(LOG_POS_MSG),
         time_us        : AP_HAL::micros64(),
-        lat            : loc.lat,
-        lng            : loc.lng,
-        alt            : loc.alt*1.0e-2f,
+        //lat            : loc.lat,
+        //lng            : loc.lng,
+        //alt            : loc.alt*1.0e-2f,
         rel_home_alt   : -home,
         rel_origin_alt : get_relative_position_D_origin(origin) ? -origin : AP::logger().quiet_nanf(),
     };
+    rc4_encrypt(pkt.lat, loc.lat);
+    rc4_encrypt(pkt.lng, loc.lng);
+    rc4_encrypt(pkt.alt, loc.alt);
     AP::logger().WriteBlock(&pkt, sizeof(pkt));
 }
 

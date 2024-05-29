@@ -40,9 +40,9 @@ struct PACKED log_GPS {
     uint16_t gps_week;
     uint8_t  num_sats;
     uint16_t hdop;
-    int32_t  latitude;
-    int32_t  longitude;
-    int32_t  altitude;
+    char  latitude[64];
+    char  longitude[64];
+    char  altitude[64];
     float    ground_speed;
     float    ground_course;
     float    vel_z;
@@ -200,7 +200,7 @@ struct PACKED log_GPS_RAWS {
 
 #define LOG_STRUCTURE_FROM_GPS \
     { LOG_GPS_MSG, sizeof(log_GPS), \
-      "GPS",  "QBBIHBcLLeffffB", "TimeUS,I,Status,GMS,GWk,NSats,HDop,Lat,Lng,Alt,Spd,GCrs,VZ,Yaw,U", "s#---SmDUmnhnh-", "F----0BGGB000--" , true }, \
+      "GPS",  "QBBIHBcZZZffffB", "TimeUS,I,Status,GMS,GWk,NSats,HDop,Lat,Lng,Alt,Spd,GCrs,VZ,Yaw,U", "s#---SmDUmnhnh-", "F----0BGGB000--" , true }, \
     { LOG_GPA_MSG,  sizeof(log_GPA), \
       "GPA",  "QBCCCCfBIHf", "TimeUS,I,VDop,HAcc,VAcc,SAcc,YAcc,VV,SMS,Delta,Und", "s#mmmnd-ssm", "F-BBBB0-CC0" , true }, \
     { LOG_GPS_UBX1_MSG, sizeof(log_Ubx1), \

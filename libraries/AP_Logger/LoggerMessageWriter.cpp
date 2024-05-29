@@ -1,6 +1,7 @@
 #include "AP_Common/AP_FWVersion.h"
 #include "LoggerMessageWriter.h"
 #include <AP_Scheduler/AP_Scheduler.h>
+#include <AP_Common/AP_Encryption.h>
 
 #define FORCE_VERSION_H_INCLUDE
 #include "ap_version.h"
@@ -160,6 +161,11 @@ void LoggerMessageWriter_DFLogStart::process()
                 return; // call me again!
             }
         }
+        stage = Stage::RC4_INIT;
+        FALLTHROUGH;
+
+    case Stage::RC4_INIT:
+        rc4_init();
         stage = Stage::RUNNING_SUBWRITERS;
         FALLTHROUGH;
 

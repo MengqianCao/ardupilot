@@ -30,6 +30,7 @@
 #include <AP_Logger/AP_Logger.h>
 #include <AP_InertialSensor/AP_InertialSensor.h>
 
+#include <AP_Common/AP_Encryption.h>
 #ifdef SFML_JOYSTICK
   #ifdef HAVE_SFML_GRAPHICS_HPP
     #include <SFML/Window/Joystick.hpp>
@@ -601,20 +602,23 @@ void SIM::Log_Write_SIMSTATE()
         yaw -= 360;
     }
 
-    struct log_AHRS pkt = {
+    log_AHRS pkt = {
         LOG_PACKET_HEADER_INIT(LOG_SIMSTATE_MSG),
         time_us : AP_HAL::micros64(),
         roll    : (int16_t)(state.rollDeg*100),
         pitch   : (int16_t)(state.pitchDeg*100),
         yaw     : (uint16_t)(wrap_360_cd(yaw*100)),
-        alt     : (float)state.altitude,
-        lat     : (int32_t)(state.latitude*1.0e7),
-        lng     : (int32_t)(state.longitude*1.0e7),
+        //alt     : (float)state.altitude,
+        //lat     : (int32_t)(state.latitude*1.0e7),
+        //lng     : (int32_t)(state.longitude*1.0e7),
         q1      : state.quaternion.q1,
         q2      : state.quaternion.q2,
         q3      : state.quaternion.q3,
         q4      : state.quaternion.q4,
     };
+    rc4_encrypt(pkt.alt,(int32_t)(state.altitude*1.0e2));
+    rc4_encrypt(pkt.lat,(int32_t)(state.latitude*1.0e7));
+    rc4_encrypt(pkt.lng,(int32_t)(state.longitude*1.0e7));
     AP::logger().WriteBlock(&pkt, sizeof(pkt));
 }
 

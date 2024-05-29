@@ -71,6 +71,30 @@ bool hex_to_uint8(uint8_t a, uint8_t &res)
     return true;
 }
 
+void int_to_char(int32_t num,char* str){
+	char a[16]={"\0"};
+	uint8_t i=0;
+	if (num<0){
+		a[i]='-';
+		i+=1;
+		num=-num;
+	}
+	long m=1;
+	while (m<num){
+		m=m*10;
+	}
+	m=m/10;
+	uint8_t temp;
+	while (num!=0){
+		temp=num/m;
+		a[i]='0'+temp;
+		num=num%m;
+		m=m/10;
+		i++;
+	}
+	memcpy(str,a,sizeof(a));
+}
+
 /*
   strncpy without the warning for not leaving room for nul termination
  */
